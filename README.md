@@ -54,7 +54,7 @@ you can also say, jar -cvfm myprogram.jar manifest.mf a.class b.class c.class fo
 manifest.mf looks like:
 Main-Class: MyProgram
 <There is an ENTER here and this is important>
---
+
 you must see a myprogram.jar in the same folder.
 try: java -jar myprogram.jar to execute the program.
 
@@ -253,3 +253,176 @@ You need to use ObjectInputStream & FileInputStream to deserialize the objects a
 ~~~~~~~~~~ brief explanation of the Java IO Stream Output classes used above ~~~~~~~~~~~
 
 same as input classes except that they perform write / output function.
+
+=============================== Different types of JDBC Drivers ========================================================
+
+Java would need separate drivers for Oracle database, MySQL database, Sqlite database.
+Similarly, Python would need separate drivers for Oracle database, MySQL database, Sqlite database.
+But, Microsoft has a solution where all these databases have ODBC drivers installed in them.
+So, now Java needs a single ODBC driver instead of 3 drivers of Oracle, MySQL, Sqlite.
+Similarly, Python needs a single ODBC driver instead of 3 drivers of Oracle, MySQL, Sqlite.
+This is Type 1 JDBC-ODBC Bridge driver.
+
+Then there is Type 2 Native-API driver.
+For ex, Oracle has an interface called OCI and Java needs to interact with OCI to talk to Oracle database.
+Sqlite provides a driver that is native to Sqlite and also compatible with Java.
+This is what we have used below.
+
+Then there is the Type 3 driver. Java-Net Protocol driver.
+Java talks to a Server and the Server talks to different databases.
+
+Finally, there is the Type 4 or Thin Driver.
+Java directly interact with database - no ODBC, no OCI, no Server in the middle etc.
+
+================================== Project Setup and implementation =======================================================
+
+Setup sqlite database:
+
+From https://www.sqlite.org/download.html, download sqlite-tools-win-x64-3490200.zip.
+Extract and copy the files to C:\sqlite.
+cmd prompt:
+cd C:\sqlite
+sqlite3 
+You will be taken to sql prompt
+.databases (shows list of databases)
+.open univ.db (create a database)
+.databases (now again see the list of databases)
+create table dept(deptno integer primary key not null unique, dname text);
+.tables
+insert into dept values(10,'CSC');
+insert into dept values(20,'ECE');
+insert into dept values(30,'MECH');
+insert into dept values(40,'EEE');
+select * from dept;
+
+Setup the driver that connects Java program and database:
+
+Google for "download jdbc sqlite driver", download sqlite-jdbc-3.34.0.jar, copy to C:\MyJava
+
+*** not sure if below are needed, getting errors like Class Not Found Exception ***
+cmd prompt:
+set classpath=C:\MyJava\sqlite-jdbc-3.34.0.jar;
+Environment Variables - User defined - Add the key-value: CLASSPATH-C:\MyJava\sqlite-jdbc-3.34.0.jar
+*** not sure if above are needed ***
+
+*** this worked *****
+In Eclipse IDE, Right-Click on the Project MyJava
+Properties
+Java Build Path
+Libraries
+Module Path
+Add External JARs
+C:\MyJava\sqlite-jdbc-3.34.0.jar
+*** this worked *****
+
+1. Then, created C:\Users\VINOD\eclipse-workspace\MyJava\src\oops\DatabaseDemo.java
+Execute and see the results. From a Java Program, we have connected to a database and queried / retrieved the results.
+
+2. DatabaseDynamicDemo.java -> This shows how to pass dynamic values into a Java Program that queries from a sqlite database.
+
+3. DatabaseUpdatesDemo.java -> So far we have seen select / dynamic select. This class shows how to perform inserts, updates, deletes from a Java Program that interacts with a database.
+
+4. DatabaseDynamicUpdatesDemo.java ->  This class shows how to perform dynamic inserts, updates, deletes from a Java Program that interacts with a database.
+
+5. DatabaseDDLDemo.java -> This class shows how to perform DDL operations like create / drop table from a Java Program into a database.
+To verify, go to sqlite prompt and say: .tables. also, .schema will show schema of all tables involved.
+
+========================================================== Collections ===================================================
+
+Below are the different interfaces under the Collection interface:
+
+============================================================================= Lists: (ArrayListDemo.java & LinkedListDemo.java) =========================================
+
+List is an ordered collection i.e. indexing works. This can have duplicate elements. 
+ArrayList and LinkedList are both implementations of the List interface, but they differ in how they store elements and how they perform certain operations. 
+
+ArrayList:
+ArrayList uses a dynamic array, providing faster random access (retrieving elements by index) but slower insertions and deletions, especially in the middle of the list. 
+
+LinkedList:
+LinkedList, on the other hand, uses a doubly linked list, allowing for efficient insertions and deletions, particularly at the beginning or middle, but slower random access. 
+Memory overhead is higher in LinkedList (due to pointers).
+
+------------------------ Arrays vs ArrayLists ------------------------ 
+
+Arrays in Java are fixed-size data structures that store elements of the same type. Once an array is created, its size cannot be changed. 
+ArrayLists, on the other hand, are dynamic data structures that can grow or shrink in size as needed. 
+They are part of the Java Collections Framework and provide a rich set of methods for manipulating data.
+
+Arrays can store both primitive data types (e.g., int, char, boolean) and objects. 
+ArrayLists can only store objects. When using ArrayLists with primitive types, autoboxing and unboxing occur, which can impact performance. 
+
+ArrayLists support generics, allowing you to specify the type of objects that can be stored in the list. 
+This provides type safety and avoids the need for casting. Arrays do not support generics.
+
+Arrays are generally faster than ArrayLists for accessing and modifying elements, especially when the size of the data structure is known and fixed. 
+ArrayLists can be slower for certain operations, such as inserting or deleting elements in the middle of the list, as this may require shifting elements.
+
+Choose arrays when you know the size of the data structure in advance and it will not change, and when performance is critical. 
+Choose ArrayLists when you need a dynamic data structure that can grow or shrink as needed, or when you need to use the methods provided by the Java Collections Framework.
+
+
+============================================================================= Queues: (ArrayDequeDemo.java & PriorityQueueDemo.java) ==================================
+
+
+Note that in Queues, you cannot add elements in the middle like: add(index, element).
+You cannot also remove / get items from the middle.
+
+Deque (Double-Ended Queue):
+Maintains insertion order.
+It is a more general type of queue that allows insertion and removal of elements from both ends (front and rear). 
+It can be used as a regular queue (FIFO) or as a stack (LIFO).
+
+PriorityQueue:
+Orders elements by priority (naturally or by Comparator).
+Access from both sides not possible - You cannot perform addFirst(), addLast(), removeFirst(), removeLast(), getFirst(), getLast() etc here as you can do in Deque.
+It is a special type of queue where each element has a priority. Elements are dequeued based on their priority, with the highest priority element being removed first. 
+If multiple elements have the same priority, they are dequeued in FIFO order. 
+By default, Java's PriorityQueue implements a min-heap, meaning the smallest element has the highest priority.
+
+
+
+============================================================================ Sets (HashSetDemo.java, TreeSetDemo.java, LinkedHashSetDemo.java) ==============================
+
+Set has no indexing and this has only unique elements. 
+Here as well, like in Queues, you cannot add elements in the middle using index like add(index, element). You cannot also remove / get items using index.
+For differences between HashSet, LinkedHashSet and TreeSet, refer HashSet vs LinkedHashSet vs TreeSet.docx.
+
+
+========================================================= Maps (HashMapDemo.java, TreeMapDemo.java, LinkedHashMapDemo.java) ==================================================
+
+Map for storing key/value pairs. 
+Again, HashMap doesnt have an order. TreeMap has an order (sorted based on keys).
+LinkedHashMap is used in cache - when you add beyond limit, Least Recently Used (LRU) data will be removed.
+put / get are the common methods.
+
+
+----------- good summary for sets and maps ----------
+
+
+HashSet / HashMap -> order not maintained
+TreeSet / TreeMap -> order by values for TreeSet / by keys for TreeMap
+LinkedHashSet / LinkedHashMap -> order of insertion maintained
+In the case of LinkedHashMap -> you can control by order of access instead of order of insertion by using appropriate constructor at the time of defining the LinkedHashMap.
+In the case of LinkedHashMap -> you can also fix the size i.e you can control from expanding beyond the initial size - LRU element is thrown out when new elements come in. used in caching.
+
+HashSet, HashMap, LinkedHashSet, LinkedHashMap can have a loading factor that determines how many slots are filled up.
+There must be some free space to ensure easier / faster access of elements that are stored by hashing technique - 
+if an element falls in same slot as another element becoz of hashing logic, it will be put in the next slot and so on, till an empty slot is found.
+If empty slots are not there, it will have to go through the entire structure which can result in slowness.
+
+
+===================================================== Properties (PropertiesDemo.java) ====================================================
+
+Kind of a Map class with keys and values but keys and values have to be strings.
+Can store the properties in txt, xml format and read the properties as well, using the Properties class.
+
+
+
+==================================================== StringTokenizer (StringTokenizerDemo.java & StringTokenizerDemo1.java) ====================================================
+
+
+This has got nothing do with Collections seen till above.
+Just a way to split a string into multiple tokens -> StringTokenizerDemo.java
+Reads a file as byte array, converts byte array to String and then splits string into multiple tokens -> StringTokenizerDemo1.java
+
